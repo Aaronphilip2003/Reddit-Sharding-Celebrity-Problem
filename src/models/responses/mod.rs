@@ -1,2 +1,3 @@
 pub mod hello_response;
-pub mod entry_response;
+pub mod post_response;
+pub mod user_response;

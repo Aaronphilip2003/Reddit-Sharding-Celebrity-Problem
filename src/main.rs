@@ -35,7 +35,8 @@ async fn main() {
 
     let app = Router::new()
         .merge(routes::hello_routes::routes())
-        .merge(routes::entry_routes::routes())
+        .merge(routes::user_routes::routes())
+        .merge(routes::post_routes::routes())
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .with_state(app_state)
         .layer(TraceLayer::new_for_http());
