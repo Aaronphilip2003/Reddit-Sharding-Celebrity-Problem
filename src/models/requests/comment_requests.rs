@@ -2,8 +2,8 @@ use serde::Deserialize;
 use utoipa::ToSchema;
 
 #[derive(Deserialize, ToSchema)]
-pub struct CreatePostRequest {
+pub struct CreateCommentRequest {
+    pub post_id: i64,
     pub author_id: i64,
-    pub title: String,
     pub body: String,
 }

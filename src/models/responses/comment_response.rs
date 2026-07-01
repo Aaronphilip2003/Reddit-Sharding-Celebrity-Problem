@@ -4,10 +4,10 @@ use sqlx::FromRow;
 use utoipa::ToSchema;
 
 #[derive(Serialize, FromRow, ToSchema)]
-pub struct PostResponse {
+pub struct CommentResponse {
     pub id: i64,
+    pub post_id: i64,
     pub author_id: i64,
-    pub title: String,
     pub body: String,
     pub created_at: DateTime<Utc>,
 }

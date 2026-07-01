@@ -1,11 +1,10 @@
 use sqlx::{Pool, Postgres};
-use uuid::Uuid;
 
 use crate::models::responses::post_response::PostResponse;
 
 pub async fn create_post(
     db: &Pool<Postgres>,
-    author_id: Uuid,
+    author_id: i64,
     title: &str,
     body: &str,
 ) -> Result<PostResponse, sqlx::Error> {
