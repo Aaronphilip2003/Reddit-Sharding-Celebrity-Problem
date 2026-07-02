@@ -1,4 +1,5 @@
 pub mod comment_handler;
+pub mod debug_handler;
 pub mod hello_handler;
 pub mod post_handler;
 pub mod user_handler;

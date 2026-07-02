@@ -41,6 +41,7 @@ async fn main() {
         .merge(routes::post_routes::routes())
         .merge(routes::comment_routes::routes())
         .merge(routes::vote_routes::routes())
+        .merge(routes::debug_routes::routes())
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .with_state(app_state)
         .layer(TraceLayer::new_for_http());

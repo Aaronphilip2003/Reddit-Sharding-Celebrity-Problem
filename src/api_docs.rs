@@ -10,7 +10,8 @@ use utoipa::OpenApi;
         crate::handlers::comment_handler::create_comment,
         crate::handlers::comment_handler::list_comments_for_post,
         crate::handlers::vote_handler::cast_vote,
-        crate::handlers::vote_handler::score_for_post
+        crate::handlers::vote_handler::score_for_post,
+        crate::handlers::debug_handler::shard_stats
     ),
     components(schemas(
         crate::models::responses::hello_response::HelloResponse,
@@ -22,7 +23,8 @@ use utoipa::OpenApi;
         crate::models::responses::comment_response::CommentResponse,
         crate::models::requests::vote_requests::CastVoteRequest,
         crate::models::responses::vote_response::VoteResponse,
-        crate::models::responses::vote_response::ScoreResponse
+        crate::models::responses::vote_response::ScoreResponse,
+        crate::models::responses::shard_stats_response::ShardStat
     ))
 )]
 pub struct ApiDoc;
