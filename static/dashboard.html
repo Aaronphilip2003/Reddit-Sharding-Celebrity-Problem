@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Celebrity Shard Dashboard</title>
+<style>
+  body { font-family: system-ui, sans-serif; background: #111; color: #eee; padding: 24px; margin: 0; }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  h2 { font-size: 14px; text-transform: uppercase; color: #999; margin: 32px 0 12px; }
+  .watching { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .watching input {
+    background: #1c1c1c; color: #eee; border: 1px solid #333; border-radius: 4px;
+    padding: 6px 10px; font-size: 14px; width: 100px;
+  }
+  .shards { display: flex; gap: 16px; }
+  .shard { flex: 1; background: #1c1c1c; border-radius: 8px; padding: 14px; }
+  .shard-label { font-size: 13px; margin-bottom: 10px; display: flex; justify-content: space-between; }
+  .bar-track { background: #333; border-radius: 4px; height: 22px; overflow: hidden; }
+  .bar-fill { height: 100%; background: #4caf50; transition: width 0.25s linear, background 0.25s linear; width: 0%; }
+  .bar-fill.warning { background: #ff9800; }
+  .bar-fill.critical { background: #f44336; }
+  .stats { display: flex; gap: 24px; }
+  .stat { background: #1c1c1c; border-radius: 8px; padding: 18px 28px; text-align: center; min-width: 100px; }
+  .stat-value { font-size: 40px; font-weight: bold; font-variant-numeric: tabular-nums; }
+  .stat-label { font-size: 12px; color: #999; margin-top: 6px; }
+  .error { color: #f44336; font-size: 13px; margin-top: 8px; height: 16px; }
+</style>
+</head>
+<body>
+  <h1>Celebrity Shard Dashboard</h1>
+  <div class="watching">
+    Watching post id:
+    <input id="post-id" type="number" value="14" />
+  </div>
+  <div class="error" id="error"></div>
+
+  <h2>Shard connection pools</h2>
+  <div class="shards" id="shards"></div>
+
+  <h2>Post activity</h2>
+  <div class="stats">
+    <div class="stat"><div class="stat-value" id="stat-score">-</div><div class="stat-label">Net score</div></div>
+    <div class="stat"><div class="stat-value" id="stat-votes">-</div><div class="stat-label">Total votes</div></div>
+    <div class="stat"><div class="stat-value" id="stat-comments">-</div><div class="stat-label">Total comments</div></div>
+  </div>
+
+<script>
+const shardsEl = document.getElementById('shards');
+const errorEl = document.getElementById('error');
+
+function renderShards(stats) {
+  shardsEl.innerHTML = '';
+  stats.forEach((s) => {
+    const pct = Math.round((s.in_use_connections / s.max_connections) * 100);
+    const level = pct >= 100 ? 'critical' : pct >= 60 ? 'warning' : '';
+    const div = document.createElement('div');
+    div.className = 'shard';
+    div.innerHTML = `
+      <div class="shard-label">
+        <span>Shard ${s.shard_index}</span>
+        <span>${s.in_use_connections}/${s.max_connections} in use</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill ${level}" style="width:${pct}%"></div></div>
+    `;
+    shardsEl.appendChild(div);
+  });
+}
+
+async function pollShards() {
+  try {
+    const res = await fetch('/debug/shards');
+    renderShards(await res.json());
+  } catch (e) {
+    errorEl.textContent = 'Failed to reach /debug/shards';
+  }
+}
+
+async function pollStats() {
+  const postId = document.getElementById('post-id').value;
+  if (!postId) return;
+  try {
+    const res = await fetch(`/posts/${postId}/stats`);
+    if (!res.ok) {
+      errorEl.textContent = `Post ${postId} not found on its shard`;
+      return;
+    }
+    errorEl.textContent = '';
+    const data = await res.json();
+    document.getElementById('stat-score').textContent = data.score;
+    document.getElementById('stat-votes').textContent = data.total_votes;
+    document.getElementById('stat-comments').textContent = data.total_comments;
+  } catch (e) {
+    errorEl.textContent = 'Failed to reach /posts/{id}/stats';
+  }
+}
+
+setInterval(pollShards, 500);
+setInterval(pollStats, 500);
+pollShards();
+pollStats();
+</script>
+</body>
+</html>

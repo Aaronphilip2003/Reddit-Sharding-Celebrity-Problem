@@ -31,3 +31,10 @@ pub async fn list_comments_for_post(
     .fetch_all(db)
     .await
 }
+
+pub async fn count_for_post(db: &Pool<Postgres>, post_id: i64) -> Result<i64, sqlx::Error> {
+    sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM comments WHERE post_id = $1")
+        .bind(post_id)
+        .fetch_one(db)
+        .await
+}

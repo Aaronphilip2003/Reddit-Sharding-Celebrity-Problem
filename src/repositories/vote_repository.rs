@@ -28,3 +28,10 @@ pub async fn score_for_post(db: &Pool<Postgres>, post_id: i64) -> Result<i64, sq
     .fetch_one(db)
     .await
 }
+
+pub async fn count_for_post(db: &Pool<Postgres>, post_id: i64) -> Result<i64, sqlx::Error> {
+    sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM votes WHERE post_id = $1")
+        .bind(post_id)
+        .fetch_one(db)
+        .await
+}
