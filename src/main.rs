@@ -4,6 +4,7 @@ mod models;
 mod repositories;
 mod routes;
 mod services;
+mod sharding;
 
 use api_docs::ApiDoc;
 use axum::Router;
@@ -14,20 +15,21 @@ use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 mod config;
 
-use config::database::create_pool;
+use config::database::create_shard_pools;
 
 #[derive(Clone)]
 pub struct AppState {
-    pub db: Pool<Postgres>,
+    pub shards: Vec<Pool<Postgres>>,
 }
 
 #[tokio::main]
 async fn main() {
     dotenvy::dotenv().ok();
 
-    let pool = create_pool().await;
+    let shards = create_shard_pools().await;
+    let shard_count = shards.len();
 
-    let app_state = AppState { db: pool };
+    let app_state = AppState { shards };
 
     fmt()
         .with_env_filter(EnvFilter::new("hello_api=info,tower_http=debug"))
@@ -47,7 +49,7 @@ async fn main() {
 
     println!("Server running on http://localhost:8000");
     println!("Swagger UI at http://localhost:8000/swagger-ui");
-    println!("Connected to postgres");
+    println!("Connected to {shard_count} shard(s)");
 
     axum::serve(listener, app).await.unwrap();
 }

@@ -21,7 +21,7 @@ pub async fn cast_vote(
     State(state): State<AppState>,
     Json(payload): Json<CastVoteRequest>,
 ) -> Result<(StatusCode, Json<VoteResponse>), StatusCode> {
-    vote_service::cast_vote(&state.db, payload.post_id, payload.user_id, payload.value)
+    vote_service::cast_vote(&state.shards, payload.post_id, payload.user_id, payload.value)
         .await
         .map(|vote| (StatusCode::CREATED, Json(vote)))
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
@@ -39,7 +39,7 @@ pub async fn score_for_post(
     State(state): State<AppState>,
     Path(post_id): Path<i64>,
 ) -> Result<Json<ScoreResponse>, StatusCode> {
-    vote_service::score_for_post(&state.db, post_id)
+    vote_service::score_for_post(&state.shards, post_id)
         .await
         .map(|score| Json(ScoreResponse { post_id, score }))
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)

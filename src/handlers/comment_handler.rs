@@ -21,7 +21,7 @@ pub async fn create_comment(
     State(state): State<AppState>,
     Json(payload): Json<CreateCommentRequest>,
 ) -> Result<(StatusCode, Json<CommentResponse>), StatusCode> {
-    comment_service::create_comment(&state.db, payload.post_id, payload.author_id, &payload.body)
+    comment_service::create_comment(&state.shards, payload.post_id, payload.author_id, &payload.body)
         .await
         .map(|comment| (StatusCode::CREATED, Json(comment)))
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
@@ -39,7 +39,7 @@ pub async fn list_comments_for_post(
     State(state): State<AppState>,
     Path(post_id): Path<i64>,
 ) -> Result<Json<Vec<CommentResponse>>, StatusCode> {
-    comment_service::list_comments_for_post(&state.db, post_id)
+    comment_service::list_comments_for_post(&state.shards, post_id)
         .await
         .map(Json)
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)

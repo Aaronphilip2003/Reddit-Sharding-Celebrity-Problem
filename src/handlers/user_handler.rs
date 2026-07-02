@@ -18,7 +18,7 @@ pub async fn create_user(
     State(state): State<AppState>,
     Json(payload): Json<CreateUserRequest>,
 ) -> Result<(StatusCode, Json<UserResponse>), StatusCode> {
-    user_service::create_user(&state.db, &payload.username)
+    user_service::create_user(&state.shards, &payload.username)
         .await
         .map(|user| (StatusCode::CREATED, Json(user)))
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)

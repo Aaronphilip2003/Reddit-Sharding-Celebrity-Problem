@@ -18,7 +18,7 @@ pub async fn create_post(
     State(state): State<AppState>,
     Json(payload): Json<CreatePostRequest>,
 ) -> Result<(StatusCode, Json<PostResponse>), StatusCode> {
-    post_service::create_post(&state.db, payload.author_id, &payload.title, &payload.body)
+    post_service::create_post(&state.shards, payload.author_id, &payload.title, &payload.body)
         .await
         .map(|post| (StatusCode::CREATED, Json(post)))
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
@@ -34,7 +34,7 @@ pub async fn create_post(
 pub async fn list_posts(
     State(state): State<AppState>,
 ) -> Result<Json<Vec<PostResponse>>, StatusCode> {
-    post_service::list_posts(&state.db)
+    post_service::list_posts(&state.shards)
         .await
         .map(Json)
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
